@@ -1,0 +1,36 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Mutation {
+  storeConfig(config: ServerConfigInput!): ServerConfig!
+  deleteServerConfig(id: ID!): Boolean!
+  deleteAllServerConfigs: Boolean!
+}
+type Query {
+ allServerConfigs: [ServerConfig!]!
+}
+
+enum GinMode {
+    DEBUG
+    RELEASE
+    TEST
+}
+
+type ServerConfig {
+    id: ID!
+    graphPackagePath: String!
+    playgroundPath: String!
+    queryPath: String!
+    ginMode: GinMode!
+    port: Int!
+}
+
+
+input ServerConfigInput {
+    graphPackagePath: String!
+    playgroundPath: String!
+    queryPath: String!
+    ginMode: String!
+    port: Int!
+}

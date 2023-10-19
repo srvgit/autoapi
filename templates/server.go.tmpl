@@ -1,0 +1,30 @@
+package main
+
+import (
+	"{{ .GraphPackagePath }}/graph"
+	"{{ .GinPackagePath }}"
+	"{{ .GQLGenHandlerPackagePath }}"
+	"{{ .GQLGenPlaygroundPackagePath }}"
+)
+
+func graphqlHandler() gin.HandlerFunc {
+	h := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func playgroundHandler() gin.HandlerFunc {
+	h := playground.Handler("GraphQL", "{{ .PlaygroundEndpoint }}")
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func main() {
+	r := gin.Default()
+	r.POST("{{ .GraphQLEndpoint }}", graphqlHandler())
+	r.GET("{{ .RootEndpoint }}", playgroundHandler())
+	r.Run()
+}
