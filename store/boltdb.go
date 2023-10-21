@@ -9,8 +9,16 @@ import (
 
 const BucketName = "ServerConfigs"
 
-func StoreConfigInDB(config *model.ServerConfig) (*model.ServerConfig, error) {
-	db, err := bolt.Open("configurations.db", 0600, nil)
+type BoltStore struct {
+	dbPath string
+}
+
+func NewBoltStore(dbPath string) ServerConfigStorer {
+	return &BoltStore{dbPath: dbPath}
+}
+
+func (s *BoltStore) StoreConfig(config *model.ServerConfig) (*model.ServerConfig, error) {
+	db, err := bolt.Open(s.dbPath, 0600, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -37,8 +45,8 @@ func StoreConfigInDB(config *model.ServerConfig) (*model.ServerConfig, error) {
 	return config, nil
 }
 
-func GetAllConfigsFromDB() ([]*model.ServerConfig, error) {
-	db, err := bolt.Open("configurations.db", 0600, nil)
+func (s *BoltStore) GetAllConfigs() ([]*model.ServerConfig, error) {
+	db, err := bolt.Open(s.dbPath, 0600, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -70,8 +78,8 @@ func GetAllConfigsFromDB() ([]*model.ServerConfig, error) {
 	return configs, nil
 }
 
-func DeleteConfigFromDB(id string) error {
-	db, err := bolt.Open("configurations.db", 0600, nil)
+func (s *BoltStore) DeleteConfig(id string) error {
+	db, err := bolt.Open(s.dbPath, 0600, nil)
 	if err != nil {
 		return err
 	}
@@ -86,8 +94,8 @@ func DeleteConfigFromDB(id string) error {
 	})
 }
 
-func DeleteAllConfigsFromDB() error {
-	db, err := bolt.Open("configurations.db", 0600, nil)
+func (s *BoltStore) DeleteAllConfigs() error {
+	db, err := bolt.Open(s.dbPath, 0600, nil)
 	if err != nil {
 		return err
 	}

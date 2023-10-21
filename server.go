@@ -2,25 +2,22 @@ package main
 
 import (
 	"autoapi/graph"
-
-	"github.com/gin-gonic/gin"
+	"autoapi/service"
+	"autoapi/store"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gin-gonic/gin"
 )
 
-// Defining the Graphql handler
-func graphqlHandler() gin.HandlerFunc {
-	// NewExecutableSchema and Config are in the generated.go file
-	// Resolver is in the resolver.go file
-	h := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+func graphqlHandler(resolver *graph.Resolver) gin.HandlerFunc {
+	h := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: resolver}))
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
 	}
 }
 
-// Defining the Playground handler
 func playgroundHandler() gin.HandlerFunc {
 	h := playground.Handler("GraphQL", "/query")
 
@@ -30,9 +27,16 @@ func playgroundHandler() gin.HandlerFunc {
 }
 
 func main() {
-	// Setting up Gin
+	boltStorer := store.NewBoltStore("configurations.db") // You should provide the path to your BoltDB file
+
+	serverConfigService := service.NewServerConfigService(boltStorer)
+
+	resolver := &graph.Resolver{
+		ServerConfigService: serverConfigService,
+	}
+
 	r := gin.Default()
-	r.POST("/query", graphqlHandler())
+	r.POST("/query", graphqlHandler(resolver))
 	r.GET("/", playgroundHandler())
 	r.Run()
 }
