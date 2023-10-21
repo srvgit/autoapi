@@ -6,46 +6,27 @@ package graph
 
 import (
 	"autoapi/graph/model"
-	"autoapi/store"
-	"autoapi/util"
 	"context"
 )
 
 // StoreConfig is the resolver for the storeConfig field.
 func (r *mutationResolver) StoreConfig(ctx context.Context, config model.ServerConfigInput) (*model.ServerConfig, error) {
-	conf := &model.ServerConfig{
-		ID:               util.GenerateUUID(),
-		GraphPackagePath: config.GraphPackagePath,
-		PlaygroundPath:   config.PlaygroundPath,
-		QueryPath:        config.QueryPath,
-		GinMode:          model.GinMode(config.GinMode),
-		Port:             config.Port,
-	}
-
-	return store.StoreConfigInDB(conf)
+	return r.ServerConfigService.StoreConfig(ctx, config)
 }
 
 // DeleteServerConfig is the resolver for the deleteServerConfig field.
 func (r *mutationResolver) DeleteServerConfig(ctx context.Context, id string) (bool, error) {
-	err := store.DeleteConfigFromDB(id)
-	if err != nil {
-		return false, err
-	}
-	return true, nil
+	return r.ServerConfigService.DeleteServerConfig(ctx, id)
 }
 
 // DeleteAllServerConfigs is the resolver for the deleteAllServerConfigs field.
 func (r *mutationResolver) DeleteAllServerConfigs(ctx context.Context) (bool, error) {
-	err := store.DeleteAllConfigsFromDB()
-	if err != nil {
-		return false, err
-	}
-	return true, nil
+	return r.ServerConfigService.DeleteAllServerConfigs(ctx)
 }
 
 // AllServerConfigs is the resolver for the allServerConfigs field.
 func (r *queryResolver) AllServerConfigs(ctx context.Context) ([]*model.ServerConfig, error) {
-	return store.GetAllConfigsFromDB()
+	return r.ServerConfigService.GetAllConfigs(ctx)
 }
 
 // Mutation returns MutationResolver implementation.
