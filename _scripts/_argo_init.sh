@@ -15,6 +15,9 @@ echo "ArgoCD Server pod is ready!"
 ARGOCD_SERVER_POD=$(kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)
 echo "ArgoCD default password: $ARGOCD_SERVER_POD"
 
+
+
+
 # Set repository credentials (Optional)
 # Uncomment and modify the lines below according to your needs
 # echo "Setting up Git repository credentials..."

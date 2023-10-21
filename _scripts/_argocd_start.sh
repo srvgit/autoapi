@@ -1,0 +1,1 @@
+kubectl get svc argocd-server -n argocd -o yaml > argocd-server-service.yaml

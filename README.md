@@ -82,13 +82,22 @@ kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o name | cut
 
 to update pass word :
 ARGO_PWD=$(bcrypt-hash YOUR_NEW_PASSWORD)
-kubectl patch secret argocd-secret -n argocd -p '{"stringData": {"admin.password": "test123", "admin.passwordMtime": "'$(date +%FT%T%Z)'"}}'
+kubectl patch secret argocd-secret -n argocd -p '{"stringData": {"admin.password": "test123232324313412341", "admin.passwordMtime": "'$(date +%FT%T%Z)'"}}'
 
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 
 use rancher for k8 management :
 sudo docker run --privileged -d --restart=unless-stopped -p 80:80 -p 443:443 rancher/rancher
 
+to get initial password: 26mnwv4fx9rdz9v9r9hld47kbgpbmc75b59wwc9ktzbz4f59wwj8tv
 
 
+docker logs  754d3e12cb70  2>&1 | grep "Bootstrap Password:"
+
+
+
+To delete ns:
+kubectl delete namespace argocd
+To get Initial password from argocd terminal:
+argocd admin initial-password
 
