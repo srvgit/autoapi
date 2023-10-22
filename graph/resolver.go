@@ -8,4 +8,6 @@ import "autoapi/service"
 
 type Resolver struct {
 	ServerConfigService *service.ServerConfigService
+	VehicleService      *service.VehicleService
+	DealerService       *service.DealerService
 }

@@ -7,33 +7,43 @@ package graph
 import (
 	"autoapi/graph/model"
 	"context"
+	"fmt"
 )
-
-// StoreConfig is the resolver for the storeConfig field.
-func (r *mutationResolver) StoreConfig(ctx context.Context, config model.ServerConfigInput) (*model.ServerConfig, error) {
-	return r.ServerConfigService.StoreConfig(ctx, config)
-}
-
-// DeleteServerConfig is the resolver for the deleteServerConfig field.
-func (r *mutationResolver) DeleteServerConfig(ctx context.Context, id string) (bool, error) {
-	return r.ServerConfigService.DeleteServerConfig(ctx, id)
-}
-
-// DeleteAllServerConfigs is the resolver for the deleteAllServerConfigs field.
-func (r *mutationResolver) DeleteAllServerConfigs(ctx context.Context) (bool, error) {
-	return r.ServerConfigService.DeleteAllServerConfigs(ctx)
-}
 
 // AllServerConfigs is the resolver for the allServerConfigs field.
 func (r *queryResolver) AllServerConfigs(ctx context.Context) ([]*model.ServerConfig, error) {
 	return r.ServerConfigService.GetAllConfigs(ctx)
 }
 
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+// Vehicles is the resolver for the vehicles field.
+func (r *queryResolver) Vehicles(ctx context.Context, filter *model.VehicleFilter, limit *int, offset *int) ([]*model.Vehicle, error) {
+	panic(fmt.Errorf("not implemented: Vehicles - vehicles"))
+}
+
+// Dealers is the resolver for the dealers field.
+func (r *queryResolver) Dealers(ctx context.Context, filter *model.DealerFilter, limit *int, offset *int) ([]*model.Dealer, error) {
+	panic(fmt.Errorf("not implemented: Dealers - dealers"))
+}
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *mutationResolver) StoreConfig(ctx context.Context, config model.ServerConfigInput) (*model.ServerConfig, error) {
+	return r.ServerConfigService.StoreConfig(ctx, config)
+}
+func (r *mutationResolver) DeleteServerConfig(ctx context.Context, id string) (bool, error) {
+	return r.ServerConfigService.DeleteServerConfig(ctx, id)
+}
+func (r *mutationResolver) DeleteAllServerConfigs(ctx context.Context) (bool, error) {
+	return r.ServerConfigService.DeleteAllServerConfigs(ctx)
+}
+
+type mutationResolver struct{ *Resolver }

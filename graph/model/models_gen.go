@@ -8,6 +8,30 @@ import (
 	"strconv"
 )
 
+type Dealer struct {
+	ID       string     `json:"id"`
+	Name     string     `json:"name"`
+	Location string     `json:"location"`
+	Vehicles []*Vehicle `json:"vehicles,omitempty"`
+}
+
+type DealerCondition struct {
+	Key      DealerFilterKey `json:"key"`
+	Value    string          `json:"value"`
+	Operator Operator        `json:"operator"`
+}
+
+type DealerFilter struct {
+	Conditions      []*DealerCondition `json:"conditions,omitempty"`
+	LogicalOperator *LogicalOperator   `json:"logicalOperator,omitempty"`
+}
+
+type Mutation struct {
+	StoreConfig            *ServerConfig `json:"storeConfig"`
+	DeleteServerConfig     bool          `json:"deleteServerConfig"`
+	DeleteAllServerConfigs bool          `json:"deleteAllServerConfigs"`
+}
+
 type ServerConfig struct {
 	ID               string  `json:"id"`
 	GraphPackagePath string  `json:"graphPackagePath"`
@@ -23,6 +47,65 @@ type ServerConfigInput struct {
 	QueryPath        string `json:"queryPath"`
 	GinMode          string `json:"ginMode"`
 	Port             int    `json:"port"`
+}
+
+type Vehicle struct {
+	ID    string `json:"id"`
+	Make  string `json:"make"`
+	Model string `json:"model"`
+	Year  int    `json:"year"`
+}
+
+type VehicleCondition struct {
+	Key      VehicleFilterKey `json:"key"`
+	Value    string           `json:"value"`
+	Operator Operator         `json:"operator"`
+}
+
+type VehicleFilter struct {
+	Conditions      []*VehicleCondition `json:"conditions,omitempty"`
+	LogicalOperator *LogicalOperator    `json:"logicalOperator,omitempty"`
+}
+
+type DealerFilterKey string
+
+const (
+	DealerFilterKeyName     DealerFilterKey = "NAME"
+	DealerFilterKeyLocation DealerFilterKey = "LOCATION"
+)
+
+var AllDealerFilterKey = []DealerFilterKey{
+	DealerFilterKeyName,
+	DealerFilterKeyLocation,
+}
+
+func (e DealerFilterKey) IsValid() bool {
+	switch e {
+	case DealerFilterKeyName, DealerFilterKeyLocation:
+		return true
+	}
+	return false
+}
+
+func (e DealerFilterKey) String() string {
+	return string(e)
+}
+
+func (e *DealerFilterKey) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DealerFilterKey(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DealerFilterKey", str)
+	}
+	return nil
+}
+
+func (e DealerFilterKey) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type GinMode string
@@ -65,5 +148,136 @@ func (e *GinMode) UnmarshalGQL(v interface{}) error {
 }
 
 func (e GinMode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type LogicalOperator string
+
+const (
+	LogicalOperatorAnd LogicalOperator = "AND"
+	LogicalOperatorOr  LogicalOperator = "OR"
+)
+
+var AllLogicalOperator = []LogicalOperator{
+	LogicalOperatorAnd,
+	LogicalOperatorOr,
+}
+
+func (e LogicalOperator) IsValid() bool {
+	switch e {
+	case LogicalOperatorAnd, LogicalOperatorOr:
+		return true
+	}
+	return false
+}
+
+func (e LogicalOperator) String() string {
+	return string(e)
+}
+
+func (e *LogicalOperator) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = LogicalOperator(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid LogicalOperator", str)
+	}
+	return nil
+}
+
+func (e LogicalOperator) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type Operator string
+
+const (
+	OperatorEqual       Operator = "EQUAL"
+	OperatorNotEqual    Operator = "NOT_EQUAL"
+	OperatorGreaterThan Operator = "GREATER_THAN"
+	OperatorLessThan    Operator = "LESS_THAN"
+	OperatorContains    Operator = "CONTAINS"
+)
+
+var AllOperator = []Operator{
+	OperatorEqual,
+	OperatorNotEqual,
+	OperatorGreaterThan,
+	OperatorLessThan,
+	OperatorContains,
+}
+
+func (e Operator) IsValid() bool {
+	switch e {
+	case OperatorEqual, OperatorNotEqual, OperatorGreaterThan, OperatorLessThan, OperatorContains:
+		return true
+	}
+	return false
+}
+
+func (e Operator) String() string {
+	return string(e)
+}
+
+func (e *Operator) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Operator(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Operator", str)
+	}
+	return nil
+}
+
+func (e Operator) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type VehicleFilterKey string
+
+const (
+	VehicleFilterKeyMake  VehicleFilterKey = "MAKE"
+	VehicleFilterKeyModel VehicleFilterKey = "MODEL"
+	VehicleFilterKeyYear  VehicleFilterKey = "YEAR"
+)
+
+var AllVehicleFilterKey = []VehicleFilterKey{
+	VehicleFilterKeyMake,
+	VehicleFilterKeyModel,
+	VehicleFilterKeyYear,
+}
+
+func (e VehicleFilterKey) IsValid() bool {
+	switch e {
+	case VehicleFilterKeyMake, VehicleFilterKeyModel, VehicleFilterKeyYear:
+		return true
+	}
+	return false
+}
+
+func (e VehicleFilterKey) String() string {
+	return string(e)
+}
+
+func (e *VehicleFilterKey) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = VehicleFilterKey(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid VehicleFilterKey", str)
+	}
+	return nil
+}
+
+func (e VehicleFilterKey) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

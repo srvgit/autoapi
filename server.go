@@ -1,14 +1,17 @@
 package main
 
 import (
+	"autoapi/config"
 	"autoapi/graph"
 	"autoapi/service"
 	"autoapi/store"
 	"autoapi/util"
+	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func graphqlHandler(resolver *graph.Resolver) gin.HandlerFunc {
@@ -28,12 +31,28 @@ func playgroundHandler() gin.HandlerFunc {
 }
 
 func main() {
+	logger, _ := zap.NewProduction()
+	defer logger.Sync() // flushes buffer, if any
+	sugar := logger.Sugar()
+
+	vehicleGraphletFeatures := os.Getenv("VEHICLE_GRAPHLET_FEATURES")
+	features := config.ParseFeatures(vehicleGraphletFeatures)
+
 	boltStorer := store.NewBoltStore("configurations.db") // You should provide the path to your BoltDB file
 
 	serverConfigService := service.NewServerConfigService(boltStorer)
 
 	resolver := &graph.Resolver{
 		ServerConfigService: serverConfigService,
+	}
+
+	if features["vehicle"] {
+		sugar.Infow("Vehicle feature is enabled")
+		resolver.VehicleService = (*service.VehicleService)(service.NewVehicleService(boltStorer))
+	}
+	if features["dealer"] {
+		sugar.Infow("Vehicle feature is enabled")
+		resolver.DealerService = (*service.DealerService)(service.NewDealerService(boltStorer))
 	}
 
 	r := gin.Default()

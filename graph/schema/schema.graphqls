@@ -9,6 +9,8 @@ type Mutation {
 }
 type Query {
  allServerConfigs: [ServerConfig!]!
+ vehicles(filter: VehicleFilter, limit: Int, offset: Int): [Vehicle]
+ dealers(filter: DealerFilter, limit: Int, offset: Int): [Dealer]
 }
 
 enum GinMode {
@@ -34,3 +36,70 @@ input ServerConfigInput {
     ginMode: String!
     port: Int!
 }
+
+schema {
+  query: Query
+}
+
+
+
+input VehicleFilter {
+  conditions: [VehicleCondition!]
+  logicalOperator: LogicalOperator
+}
+
+input DealerFilter {
+  conditions: [DealerCondition!]
+  logicalOperator: LogicalOperator
+}
+
+input VehicleCondition {
+  key: VehicleFilterKey!
+  value: String!
+  operator: Operator!
+}
+
+input DealerCondition {
+  key: DealerFilterKey!
+  value: String!
+  operator: Operator!
+}
+
+enum Operator {
+  EQUAL
+  NOT_EQUAL
+  GREATER_THAN
+  LESS_THAN
+  CONTAINS
+}
+
+enum LogicalOperator {
+  AND
+  OR
+}
+
+type Vehicle {
+  id: ID!
+  make: String!
+  model: String!
+  year: Int!
+}
+
+type Dealer {
+  id: ID!
+  name: String!
+  location: String!
+  vehicles: [Vehicle]
+}
+
+enum VehicleFilterKey {
+  MAKE
+  MODEL
+  YEAR
+}
+
+enum DealerFilterKey {
+  NAME
+  LOCATION
+}
+
