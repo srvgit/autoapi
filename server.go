@@ -41,5 +41,5 @@ func main() {
 	r.GET("/", playgroundHandler())
 	r.GET("/healthz", util.LivenessProbe)
 	r.GET("/readiness", util.ReadinessProbe)
-	r.Run()
+	r.Run(":9090")
 }
