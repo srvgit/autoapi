@@ -4,6 +4,7 @@ import (
 	"autoapi/graph"
 	"autoapi/service"
 	"autoapi/store"
+	"autoapi/util"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -38,5 +39,7 @@ func main() {
 	r := gin.Default()
 	r.POST("/query", graphqlHandler(resolver))
 	r.GET("/", playgroundHandler())
+	r.GET("/healthz", util.LivenessProbe)
+	r.GET("/readiness", util.ReadinessProbe)
 	r.Run()
 }

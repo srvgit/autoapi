@@ -30,3 +30,15 @@ echo "ArgoCD Server pod is ready!"
 ARGOCD_SERVER_POD=$(kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)
 echo "ArgoCD default password: $ARGOCD_SERVER_POD"
 echo "Setup complete!"
+
+#VPA is not part og k8s yet, so we need to install it manually
+git clone https://github.com/kubernetes/autoscaler.git
+cd autoscaler/vertical-pod-autoscaler
+./hack/vpa-up.sh
+
+
+
+#verify :
+kubectl get crd verticalpodautoscalers.autoscaling.k8s.io
+
+kubectl create namespace api
