@@ -21,7 +21,6 @@ func (config *DeploymentConfig) GenerateDeployment() error {
 		return fmt.Errorf("failed to read template file: %v", err)
 	}
 
-	// Parse the template
 	tmpl, err := template.New("deployment").Parse(string(templateContent))
 	if err != nil {
 		return fmt.Errorf("failed to parse template: %v", err)
