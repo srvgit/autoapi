@@ -23,3 +23,8 @@ _scripts/docker_creds.json
 __debug_bin*
 .env
 *.DS_Store
+cmd/cmd.go
+store/boltdb_backupgo
+.env
+server_go
+_scripts/argocd-server-service.yaml

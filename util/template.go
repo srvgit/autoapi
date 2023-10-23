@@ -39,8 +39,8 @@ func CreateKustomizations(config *model.ServerConfig) error {
 	derivedConfig := generator.MapExpectationsToResources(config.PerformanceRequirements)
 	hpa := generator.HPAConfig{
 		MinReplicas:  derivedConfig.MinReplicas,
-		TemplatePath: "templates/argo/graphlet/dev/enviornment-patch-hpa.tmpl",
-		TargetPath:   directory + "/overlays/" + config.ApiserverName + "/dev" + "/enviornment-patch-hpa.yml",
+		TemplatePath: "templates/argo/graphlet/dev/environment-patch-hpa.tmpl",
+		TargetPath:   directory + "/overlays/" + config.ApiserverName + "/dev" + "/environment-patch-hpa.yml",
 	}
 	if err = hpa.GenerateHPA(); err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -49,7 +49,7 @@ func CreateKustomizations(config *model.ServerConfig) error {
 	deploymentConfig := generator.DeploymentConfig{
 		Features:     config.Features,
 		TemplatePath: "templates/argo/graphlet/dev/environment-patch-deployment.tmpl",
-		TargetPath:   directory + "/overlays/" + config.ApiserverName + "/dev" + "/enviornment-patch-deployment.yml",
+		TargetPath:   directory + "/overlays/" + config.ApiserverName + "/dev" + "/environment-patch-deployment.yml",
 	}
 
 	if err = deploymentConfig.GenerateDeployment(); err != nil {
@@ -62,7 +62,7 @@ func CreateKustomizations(config *model.ServerConfig) error {
 		MinCPU:       derivedConfig.MinCPU,
 		MinMemory:    derivedConfig.MinMemory,
 		TemplatePath: "templates/argo/graphlet/dev/environment-patch-vpa.tmpl",
-		TargetPath:   directory + "/overlays/" + config.ApiserverName + "/dev" + "/enviornment-patch-vpa.yml",
+		TargetPath:   directory + "/overlays/" + config.ApiserverName + "/dev" + "/environment-patch-vpa.yml",
 	}
 	if err = vpa.GenerateVPA(); err != nil {
 		fmt.Printf("Error: %v\n", err)

@@ -6,6 +6,6 @@ resources:
 
 patches:
 - path: environment-patch-deployment.yml
-- path: enviornment-patch-hpa.yml
+- path: environment-patch-hpa.yml
 - path: environment-patch-vpa.yml
 - path: environment-patch-service.yml
