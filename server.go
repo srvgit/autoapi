@@ -35,7 +35,7 @@ func main() {
 	defer logger.Sync() // flushes buffer, if any
 	sugar := logger.Sugar()
 
-	vehicleGraphletFeatures := os.Getenv("VEHICLE_GRAPHLET_FEATURES")
+	vehicleGraphletFeatures := os.Getenv("GRAPHLET_FEATURES")
 	features := config.ParseFeatures(vehicleGraphletFeatures)
 
 	boltStorer := store.NewBoltStore("configurations.db") // You should provide the path to your BoltDB file
@@ -46,11 +46,11 @@ func main() {
 		ServerConfigService: serverConfigService,
 	}
 
-	if features["vehicle"] {
+	if features["VEHICLE"] {
 		sugar.Infow("Vehicle feature is enabled")
 		resolver.VehicleService = (*service.VehicleService)(service.NewVehicleService(boltStorer))
 	}
-	if features["dealer"] {
+	if features["DEALER"] {
 		sugar.Infow("Vehicle feature is enabled")
 		resolver.DealerService = (*service.DealerService)(service.NewDealerService(boltStorer))
 	}
