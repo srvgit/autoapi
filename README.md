@@ -107,3 +107,14 @@ argocd admin initial-password
 //remove service from Kustomization base so that we can define seperate service names 
 //Update Graphlets to serve data seperately based on features
 //Add test cases
+
+
+#To create a service use below mutation(please note service name should be lower case with - or _):
+mutation {
+  createService(
+    config: {apiserverName: "vehicle-service", contextPath: "vehicle", features: [VEHICLE, DEALER], performanceRequirements: {apiUsageFrequency: LOW, requestVolume: SMALL, highAvailability: false, batchLoad: false}}
+  ) {
+    id
+    apiserverName
+  }
+}
