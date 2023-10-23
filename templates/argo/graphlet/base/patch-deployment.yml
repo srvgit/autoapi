@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: generic-graphlet
+spec:
+  template:
+    spec:
+      containers:
+      - name: graphlet
+        image: docker1460/autoapi:latest
+      imagePullSecrets:
+      - name: regcred

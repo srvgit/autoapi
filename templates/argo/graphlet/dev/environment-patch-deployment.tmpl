@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: generic-graphlet
+spec:
+  replicas: 1 
+  template:
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: graphlet
+        image: docker1460/autoapi:latest
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 9090
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: 9090
+        env:
+        - name: ENVIRONMENT
+          value: dev
+        - name: GRAPHLET_FEATURES
+          value: {{ .FeaturesString }}

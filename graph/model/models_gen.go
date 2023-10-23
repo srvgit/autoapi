@@ -26,27 +26,41 @@ type DealerFilter struct {
 	LogicalOperator *LogicalOperator   `json:"logicalOperator,omitempty"`
 }
 
-type Mutation struct {
-	StoreConfig            *ServerConfig `json:"storeConfig"`
-	DeleteServerConfig     bool          `json:"deleteServerConfig"`
-	DeleteAllServerConfigs bool          `json:"deleteAllServerConfigs"`
+type PerformanceRequirements struct {
+	APIUsageFrequency APIUsageFrequency `json:"apiUsageFrequency"`
+	RequestVolume     RequestVolume     `json:"requestVolume"`
+	HighAvailability  bool              `json:"highAvailability"`
+	BatchLoad         bool              `json:"batchLoad"`
+}
+
+type PerformanceRequirementsInput struct {
+	APIUsageFrequency APIUsageFrequency `json:"apiUsageFrequency"`
+	RequestVolume     RequestVolume     `json:"requestVolume"`
+	HighAvailability  bool              `json:"highAvailability"`
+	BatchLoad         bool              `json:"batchLoad"`
+}
+
+type ResourceConfig struct {
+	MaxMemory   string `json:"maxMemory"`
+	MinMemory   string `json:"minMemory"`
+	MaxCPU      string `json:"maxCPU"`
+	MinCPU      string `json:"minCPU"`
+	MinReplicas int    `json:"minReplicas"`
 }
 
 type ServerConfig struct {
-	ID               string  `json:"id"`
-	GraphPackagePath string  `json:"graphPackagePath"`
-	PlaygroundPath   string  `json:"playgroundPath"`
-	QueryPath        string  `json:"queryPath"`
-	GinMode          GinMode `json:"ginMode"`
-	Port             int     `json:"port"`
+	ID                      string                   `json:"id"`
+	ApiserverName           string                   `json:"apiserverName"`
+	ContextPath             string                   `json:"contextPath"`
+	Features                []Feature                `json:"features"`
+	PerformanceRequirements *PerformanceRequirements `json:"performanceRequirements"`
 }
 
 type ServerConfigInput struct {
-	GraphPackagePath string `json:"graphPackagePath"`
-	PlaygroundPath   string `json:"playgroundPath"`
-	QueryPath        string `json:"queryPath"`
-	GinMode          string `json:"ginMode"`
-	Port             int    `json:"port"`
+	ApiserverName           string                        `json:"apiserverName"`
+	ContextPath             string                        `json:"contextPath"`
+	Features                []Feature                     `json:"features"`
+	PerformanceRequirements *PerformanceRequirementsInput `json:"performanceRequirements"`
 }
 
 type Vehicle struct {
@@ -65,6 +79,49 @@ type VehicleCondition struct {
 type VehicleFilter struct {
 	Conditions      []*VehicleCondition `json:"conditions,omitempty"`
 	LogicalOperator *LogicalOperator    `json:"logicalOperator,omitempty"`
+}
+
+type APIUsageFrequency string
+
+const (
+	APIUsageFrequencyLow    APIUsageFrequency = "LOW"
+	APIUsageFrequencyMedium APIUsageFrequency = "MEDIUM"
+	APIUsageFrequencyHigh   APIUsageFrequency = "HIGH"
+)
+
+var AllAPIUsageFrequency = []APIUsageFrequency{
+	APIUsageFrequencyLow,
+	APIUsageFrequencyMedium,
+	APIUsageFrequencyHigh,
+}
+
+func (e APIUsageFrequency) IsValid() bool {
+	switch e {
+	case APIUsageFrequencyLow, APIUsageFrequencyMedium, APIUsageFrequencyHigh:
+		return true
+	}
+	return false
+}
+
+func (e APIUsageFrequency) String() string {
+	return string(e)
+}
+
+func (e *APIUsageFrequency) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = APIUsageFrequency(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ApiUsageFrequency", str)
+	}
+	return nil
+}
+
+func (e APIUsageFrequency) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type DealerFilterKey string
@@ -108,46 +165,48 @@ func (e DealerFilterKey) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type GinMode string
+type Feature string
 
 const (
-	GinModeDebug   GinMode = "DEBUG"
-	GinModeRelease GinMode = "RELEASE"
-	GinModeTest    GinMode = "TEST"
+	FeatureVehicle   Feature = "VEHICLE"
+	FeatureDealer    Feature = "DEALER"
+	FeatureUser      Feature = "USER"
+	FeatureInventory Feature = "INVENTORY"
 )
 
-var AllGinMode = []GinMode{
-	GinModeDebug,
-	GinModeRelease,
-	GinModeTest,
+var AllFeature = []Feature{
+	FeatureVehicle,
+	FeatureDealer,
+	FeatureUser,
+	FeatureInventory,
 }
 
-func (e GinMode) IsValid() bool {
+func (e Feature) IsValid() bool {
 	switch e {
-	case GinModeDebug, GinModeRelease, GinModeTest:
+	case FeatureVehicle, FeatureDealer, FeatureUser, FeatureInventory:
 		return true
 	}
 	return false
 }
 
-func (e GinMode) String() string {
+func (e Feature) String() string {
 	return string(e)
 }
 
-func (e *GinMode) UnmarshalGQL(v interface{}) error {
+func (e *Feature) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = GinMode(str)
+	*e = Feature(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid GinMode", str)
+		return fmt.Errorf("%s is not a valid Feature", str)
 	}
 	return nil
 }
 
-func (e GinMode) MarshalGQL(w io.Writer) {
+func (e Feature) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -236,6 +295,49 @@ func (e *Operator) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Operator) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type RequestVolume string
+
+const (
+	RequestVolumeSmall  RequestVolume = "SMALL"
+	RequestVolumeMedium RequestVolume = "MEDIUM"
+	RequestVolumeLarge  RequestVolume = "LARGE"
+)
+
+var AllRequestVolume = []RequestVolume{
+	RequestVolumeSmall,
+	RequestVolumeMedium,
+	RequestVolumeLarge,
+}
+
+func (e RequestVolume) IsValid() bool {
+	switch e {
+	case RequestVolumeSmall, RequestVolumeMedium, RequestVolumeLarge:
+		return true
+	}
+	return false
+}
+
+func (e RequestVolume) String() string {
+	return string(e)
+}
+
+func (e *RequestVolume) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RequestVolume(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RequestVolume", str)
+	}
+	return nil
+}
+
+func (e RequestVolume) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

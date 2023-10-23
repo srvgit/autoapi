@@ -7,6 +7,14 @@ import (
 	"context"
 )
 
+type ServerConfigInput struct {
+	Features    string
+	MaxMemory   string
+	MinMemory   string
+	MaxCPU      string
+	MinCPU      string
+	MinReplicas int
+}
 type ServerConfigService struct {
 	Store store.ServerConfigStorer
 }
@@ -19,15 +27,19 @@ func NewServerConfigService(store store.ServerConfigStorer) *ServerConfigService
 
 func (s *ServerConfigService) StoreConfig(ctx context.Context, config model.ServerConfigInput) (*model.ServerConfig, error) {
 	conf := &model.ServerConfig{
-		ID:               util.GenerateUUID(),
-		GraphPackagePath: config.GraphPackagePath,
-		PlaygroundPath:   config.PlaygroundPath,
-		QueryPath:        config.QueryPath,
-		GinMode:          model.GinMode(config.GinMode),
-		Port:             config.Port,
+		ID:            util.GenerateUUID(),
+		ApiserverName: config.ApiserverName,
+		ContextPath:   config.ContextPath,
+		Features:      config.Features,
+		PerformanceRequirements: &model.PerformanceRequirements{
+			APIUsageFrequency: config.PerformanceRequirements.APIUsageFrequency,
+			RequestVolume:     config.PerformanceRequirements.RequestVolume,
+			HighAvailability:  config.PerformanceRequirements.HighAvailability,
+			BatchLoad:         config.PerformanceRequirements.BatchLoad,
+		},
 	}
 
-	return s.Store.StoreConfig(conf)
+	return s.Store.CreateService(conf)
 }
 
 func (s *ServerConfigService) DeleteServerConfig(ctx context.Context, id string) (bool, error) {

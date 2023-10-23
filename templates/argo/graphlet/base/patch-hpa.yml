@@ -1,0 +1,6 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: generic-graphlet-hpa
+spec:
+  maxReplicas: 6

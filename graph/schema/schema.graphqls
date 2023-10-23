@@ -3,7 +3,7 @@
 # https://gqlgen.com/getting-started/
 
 type Mutation {
-  storeConfig(config: ServerConfigInput!): ServerConfig!
+  createService(config: ServerConfigInput!): ServerConfig!
   deleteServerConfig(id: ID!): Boolean!
   deleteAllServerConfigs: Boolean!
 }
@@ -13,32 +13,26 @@ type Query {
  dealers(filter: DealerFilter, limit: Int, offset: Int): [Dealer]
 }
 
-enum GinMode {
-    DEBUG
-    RELEASE
-    TEST
-}
 
 type ServerConfig {
     id: ID!
-    graphPackagePath: String!
-    playgroundPath: String!
-    queryPath: String!
-    ginMode: GinMode!
-    port: Int!
+    apiserverName: String!
+    contextPath: String!
+    features: [Feature!]!
+    performanceRequirements: PerformanceRequirements!
 }
 
 
 input ServerConfigInput {
-    graphPackagePath: String!
-    playgroundPath: String!
-    queryPath: String!
-    ginMode: String!
-    port: Int!
+    apiserverName: String!
+    contextPath: String!
+    features: [Feature!]!
+    performanceRequirements: PerformanceRequirementsInput!
 }
 
 schema {
   query: Query
+  mutation: Mutation
 }
 
 
@@ -103,3 +97,45 @@ enum DealerFilterKey {
   LOCATION
 }
 
+
+
+enum Feature {
+    VEHICLE
+    DEALER
+    USER
+    INVENTORY
+}
+
+type  PerformanceRequirements {
+  apiUsageFrequency: ApiUsageFrequency!
+  requestVolume: RequestVolume!
+  highAvailability: Boolean!
+  batchLoad: Boolean!
+}
+input PerformanceRequirementsInput {
+  apiUsageFrequency: ApiUsageFrequency!
+  requestVolume: RequestVolume!
+  highAvailability: Boolean!
+  batchLoad: Boolean!
+}
+
+enum ApiUsageFrequency {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum RequestVolume {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+
+type ResourceConfig {
+  maxMemory: String!
+  minMemory: String!
+  maxCPU: String!
+  minCPU: String!
+  minReplicas: Int!
+}

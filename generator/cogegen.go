@@ -1,27 +1,35 @@
 package generator
 
 import (
-	"os"
-	"text/template"
+	"autoapi/graph/model"
 )
 
-type CodeGenerator interface {
-	GenerateCode(data interface{}, templatePath string, outputPath string) error
-}
-
-type GoCodeGenerator struct{}
-
-func (g *GoCodeGenerator) GenerateCode(data interface{}, templatePath string, outputPath string) error {
-	tmpl, err := template.ParseFiles(templatePath)
-	if err != nil {
-		return err
+func MapExpectationsToResources(performanceRequirements *model.PerformanceRequirements) *model.ResourceConfig {
+	config := &model.ResourceConfig{
+		MaxMemory:   "1Gi",
+		MinMemory:   "100Mi",
+		MaxCPU:      "1",
+		MinCPU:      "100m",
+		MinReplicas: 1,
 	}
 
-	outputFile, err := os.Create(outputPath)
-	if err != nil {
-		return err
+	if performanceRequirements.APIUsageFrequency == "HIGH" {
+		config.MaxCPU = "2"
 	}
-	defer outputFile.Close()
 
-	return tmpl.Execute(outputFile, data)
+	if performanceRequirements.RequestVolume == "LARGE" {
+		config.MaxMemory = "2Gi"
+		config.MinReplicas = 3
+	}
+
+	if performanceRequirements.HighAvailability {
+		config.MinReplicas = 3
+	}
+
+	if performanceRequirements.BatchLoad {
+		config.MaxMemory = "4Gi"
+		config.MaxCPU = "4"
+	}
+
+	return config
 }

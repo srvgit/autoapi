@@ -20,3 +20,6 @@
 # Go workspace file
 go.work
 _scripts/docker_creds.json
+__debug_bin*
+.env
+*.DS_Store

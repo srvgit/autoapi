@@ -2,6 +2,7 @@ package store
 
 import (
 	"autoapi/graph/model"
+	"autoapi/util"
 	"encoding/json"
 
 	"github.com/boltdb/bolt"
@@ -17,7 +18,7 @@ func NewBoltStore(dbPath string) ServerConfigStorer {
 	return &BoltStore{dbPath: dbPath}
 }
 
-func (s *BoltStore) StoreConfig(config *model.ServerConfig) (*model.ServerConfig, error) {
+func (s *BoltStore) CreateService(config *model.ServerConfig) (*model.ServerConfig, error) {
 	db, err := bolt.Open(s.dbPath, 0600, nil)
 	if err != nil {
 		return nil, err
@@ -31,7 +32,12 @@ func (s *BoltStore) StoreConfig(config *model.ServerConfig) (*model.ServerConfig
 		}
 
 		configBytes, err := json.Marshal(config)
-		if err != nil {
+		if err == nil {
+			err = util.CreateKustomizations(config)
+			if err != nil {
+				return err
+			}
+		} else {
 			return err
 		}
 

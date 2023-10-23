@@ -10,6 +10,21 @@ import (
 	"fmt"
 )
 
+// CreateService is the resolver for the createService field.
+func (r *mutationResolver) CreateService(ctx context.Context, config model.ServerConfigInput) (*model.ServerConfig, error) {
+	return r.ServerConfigService.StoreConfig(ctx, config)
+}
+
+// DeleteServerConfig is the resolver for the deleteServerConfig field.
+func (r *mutationResolver) DeleteServerConfig(ctx context.Context, id string) (bool, error) {
+	return r.ServerConfigService.DeleteServerConfig(ctx, id)
+}
+
+// DeleteAllServerConfigs is the resolver for the deleteAllServerConfigs field.
+func (r *mutationResolver) DeleteAllServerConfigs(ctx context.Context) (bool, error) {
+	return r.ServerConfigService.DeleteAllServerConfigs(ctx)
+}
+
 // AllServerConfigs is the resolver for the allServerConfigs field.
 func (r *queryResolver) AllServerConfigs(ctx context.Context) ([]*model.ServerConfig, error) {
 	return r.ServerConfigService.GetAllConfigs(ctx)
@@ -25,9 +40,13 @@ func (r *queryResolver) Dealers(ctx context.Context, filter *model.DealerFilter,
 	panic(fmt.Errorf("not implemented: Dealers - dealers"))
 }
 
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
+type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 
 // !!! WARNING !!!
@@ -39,11 +58,3 @@ type queryResolver struct{ *Resolver }
 func (r *mutationResolver) StoreConfig(ctx context.Context, config model.ServerConfigInput) (*model.ServerConfig, error) {
 	return r.ServerConfigService.StoreConfig(ctx, config)
 }
-func (r *mutationResolver) DeleteServerConfig(ctx context.Context, id string) (bool, error) {
-	return r.ServerConfigService.DeleteServerConfig(ctx, id)
-}
-func (r *mutationResolver) DeleteAllServerConfigs(ctx context.Context) (bool, error) {
-	return r.ServerConfigService.DeleteAllServerConfigs(ctx)
-}
-
-type mutationResolver struct{ *Resolver }

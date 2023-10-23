@@ -1,0 +1,16 @@
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: generic-graphlet-vpa
+spec:
+  updatePolicy:
+    updateMode: "Off"  # In base overlay, don't auto-update, just provide recommendations
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        maxAllowed:
+          cpu: "2"
+          memory: "2Gi"
+        minAllowed:
+          cpu: "100m"
+          memory: "100Mi"

@@ -24,7 +24,7 @@ type ServerConfig struct {
 
 const bucketName = "configurations"
 
-func storeConfig(db *bolt.DB, config *ServerConfig) error {
+func CreateService(db *bolt.DB, config *ServerConfig) error {
 	return db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(bucketName))
 		if err != nil {

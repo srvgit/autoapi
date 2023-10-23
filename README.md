@@ -18,7 +18,7 @@ go run github.com/99designs/gqlgen
 
 # use below mutation to persist server provision request @http://localhost:8080/
 mutation {
-    storeConfig(config: {
+    createService(config: {
         graphPackagePath: "autoapi/graph",
         playgroundPath: "/",
         queryPath: "/query",
