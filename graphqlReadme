@@ -1,0 +1,12 @@
+GraphQL
+Introduction to GraphQL
+Powerful API Query Language: GraphQL is a query language for APIs, offering a flexible and efficient approach to interacting with data.
+Developed by Facebook: Created internally in 2012 and released publicly in 2015.
+Specify Exact Data Needs: Allows clients to request exactly what data they need, no more, no less.
+Why Use GraphQL?
+Efficient Data Retrieval: Minimizes over-fetching and under-fetching problems common in REST APIs.
+Single API Endpoint: Uses a single endpoint to handle all actions, simplifying API design and usage.
+Strongly Typed Schema: Facilitates tooling and validation, ensuring APIs only allow feasible operations.
+Real-Time Capabilities: Supports real-time updates through subscriptions, pushing live data updates to clients.
+Self-Documenting: APIs are self-documenting, allowing developers to query the API schema for documentation, which aids in development and maintenance.
+Flexible and Evolutionary: Easily extendable, allowing developers to add new fields and types without impacting existing queries.
