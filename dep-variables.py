@@ -21,7 +21,7 @@ def extract_dependencies(pom_file):
         for prop in properties_element:
             properties[prop.tag.split('}', 1)[1]] = prop.text
 
-    dependencies = []
+    dependencies = set()
 
     # Find all dependency elements in the pom.xml
     for dependency in root.findall('m:dependencies/m:dependency', ns):
@@ -35,12 +35,8 @@ def extract_dependencies(pom_file):
         # Fetch license information if available
         license_info = fetch_license_info(group_id, artifact_id, version)
 
-        dependencies.append({
-            'groupId': group_id,
-            'artifactId': artifact_id,
-            'version': version,
-            'license': license_info
-        })
+        # Add dependency as a tuple to the set
+        dependencies.add((group_id, artifact_id, version, ', '.join(license_info)))
 
     return dependencies
 
@@ -87,8 +83,8 @@ def process_all_poms(root_dir):
 def print_dependencies(dependencies):
     print("Consolidated Dependencies found in all pom.xml files:")
     for dep in sorted(dependencies):
-        full_path = f"{dep['groupId'].replace('.', '/')}/{dep['artifactId']}/{dep['version']}"
-        print(f"Full Path: {full_path} | Version: {dep['version']} | License: {dep['license']}")
+        full_path = f"{dep[0].replace('.', '/')}/{dep[1]}/{dep[2]}"
+        print(f"Full Path: {full_path} | Version: {dep[2]} | License: {dep[3]}")
 
 def main():
     root_dir = 'path/to/your/projects'
