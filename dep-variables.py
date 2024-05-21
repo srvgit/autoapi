@@ -33,6 +33,10 @@ def extract_dependencies(pom_file):
         version = resolve_version(version, properties)
 
         # Fetch license information if available
+        if version == 'No version specified':
+            latest_version = fetch_latest_version(group_id, artifact_id)
+            if latest_version:
+                version = latest_version
         license_info = fetch_license_info(group_id, artifact_id, version)
 
         # Add dependency as a tuple to the set
@@ -47,6 +51,22 @@ def resolve_version(version, properties):
         var_name = match.group(1)
         return properties.get(var_name, f"Unresolved variable: {var_name}")
     return version
+
+def fetch_latest_version(group_id, artifact_id):
+    try:
+        # Construct the URL to fetch the latest version metadata
+        url = f"https://repo1.maven.org/maven2/{group_id.replace('.', '/')}/{artifact_id}/maven-metadata.xml"
+        response = requests.get(url, timeout=10, verify=False)
+        
+        if response.status_code == 200:
+            metadata = ET.fromstring(response.text)
+            latest = metadata.find('versioning/latest')
+            if latest is not None:
+                return latest.text
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching latest version: {str(e)}")
+        return None
 
 def fetch_license_info(group_id, artifact_id, version):
     try:
