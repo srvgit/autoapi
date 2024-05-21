@@ -69,25 +69,44 @@ def fetch_latest_version(group_id, artifact_id):
         return None
 
 def fetch_license_info(group_id, artifact_id, version):
+    license_info = []
+    urls = [
+        f"https://repo1.maven.org/maven2/{group_id.replace('.', '/')}/{artifact_id}/{version}/{artifact_id}-{version}.pom",
+        f"https://repo1.maven.org/maven2/{group_id.replace('.', '/')}/{artifact_id}/{version}/{artifact_id}-{version}.jar"
+    ]
+    for url in urls:
+        try:
+            response = requests.get(url, timeout=10, verify=False)
+            if response.status_code == 200:
+                if url.endswith(".pom"):
+                    license_info.extend(parse_pom_for_license(response.text))
+                elif url.endswith(".jar"):
+                    license_info.extend(parse_jar_for_license(url))
+                if license_info:
+                    break
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching license from {url}: {str(e)}")
+    if not license_info:
+        license_info = ["License information not found"]
+    return license_info
+
+def parse_pom_for_license(pom_content):
     try:
-        # Construct the URL for Maven Central Repository metadata
-        url = f"https://repo1.maven.org/maven2/{group_id.replace('.', '/')}/{artifact_id}/{version}/{artifact_id}-{version}.pom"
-        response = requests.get(url, timeout=10, verify=False)
+        pom_tree = ET.ElementTree(ET.fromstring(pom_content))
+        pom_root = pom_tree.getroot()
 
-        if response.status_code == 200:
-            pom_content = response.text
-            pom_tree = ET.ElementTree(ET.fromstring(pom_content))
-            pom_root = pom_tree.getroot()
+        # Define the namespace for the fetched POM XML
+        ns = {'m': 'http://maven.apache.org/POM/4.0.0'}
 
-            # Define the namespace for the fetched POM XML
-            ns = {'m': 'http://maven.apache.org/POM/4.0.0'}
+        licenses = pom_root.findall('m:licenses/m:license/m:name', ns)
+        return [license.text for license in licenses if license is not None]
+    except ET.ParseError:
+        return []
 
-            licenses = pom_root.findall('m:licenses/m:license/m:name', ns)
-            if licenses:
-                return [license.text for license in licenses]
-        return ["License information not found"]
-    except requests.exceptions.RequestException as e:
-        return [f"Error fetching license: {str(e)}"]
+def parse_jar_for_license(jar_url):
+    # Placeholder for parsing license information from JAR files
+    # Currently not implemented, returning empty list
+    return []
 
 def process_all_poms(root_dir):
     all_dependencies = set()
@@ -112,4 +131,3 @@ def main():
     print_dependencies(all_dependencies)
 
 if __name__ == "__main__":
-    main()
